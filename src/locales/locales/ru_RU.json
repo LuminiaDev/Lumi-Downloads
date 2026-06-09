@@ -1,0 +1,48 @@
+{
+  "app": {
+    "title": "Загрузки Lumi"
+  },
+  "header": {
+    "language": "Язык",
+    "title": "Загрузки Lumi"
+  },
+  "common": {
+    "copyLink": "Скопировать ссылку",
+    "copied": "Ссылка скопирована",
+    "download": "Скачать",
+    "refresh": "Обновить",
+    "resetFilters": "Сбросить фильтры",
+    "retry": "Повторить",
+    "downloadChecksum": "Скачать checksum"
+  },
+  "branches": {
+    "dev": "Dev",
+    "stable": "Stable",
+    "legacy": "Legacy"
+  },
+  "filters": {
+    "allBranches": "Все ветки",
+    "allVersions": "Все версии",
+    "branch": "Ветка",
+    "version": "Версия"
+  },
+  "theme": {
+    "dark": "Тёмная",
+    "light": "Светлая",
+    "system": "Системная"
+  },
+  "home": {
+    "buildsCount": "{{count}} сборок",
+    "empty": "По выбранным фильтрам версий нет.",
+    "file": "Файл",
+    "loading": "Загружаю версии из настроенных провайдеров.",
+    "provider": "Провайдер",
+    "subtitle": "Одностраничный список загрузок с конфигурируемыми провайдерами версий.",
+    "tableTitle": "Доступные версии",
+    "version": "Версия",
+    "source": "Source"
+  },
+  "errors": {
+    "loadVersions": "Не удалось загрузить версии"
+  }
+}
