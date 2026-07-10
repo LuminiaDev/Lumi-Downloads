@@ -4,53 +4,55 @@ declare const process: {
   env: Record<string, string | undefined>;
 };
 
-function createDownloadPath(request: Request) {
-  const url = new URL(request.url);
+type VercelRequest = {
+  url?: string;
+};
+
+type VercelResponse = {
+  end(body?: string): void;
+  setHeader(name: string, value: string): void;
+  statusCode: number;
+};
+
+function createDownloadPath(request: VercelRequest) {
+  const url = new URL(request.url ?? "/", "https://lumi-downloads.invalid");
   const branch = url.searchParams.get("branch");
   const target = url.searchParams.get("target");
 
-  if (!branch || !target) {
-    return null;
+  if (branch && target) {
+    return `/download/${encodeURIComponent(branch)}/${encodeURIComponent(target)}`;
   }
 
-  return `/download/${encodeURIComponent(branch)}/${encodeURIComponent(target)}`;
+  return url.pathname.startsWith("/download/") ? url.pathname : null;
 }
 
-async function handleRequest(request: Request) {
-  const pathname = createDownloadPath(request);
+function sendText(response: VercelResponse, statusCode: number, body: string) {
+  response.statusCode = statusCode;
+  response.setHeader("Content-Type", "text/plain; charset=utf-8");
+  response.end(body);
+}
 
-  if (!pathname) {
-    return new Response("Download route not found", { status: 404 });
-  }
-
+export default async function download(request: VercelRequest, response: VercelResponse) {
   try {
+    const pathname = createDownloadPath(request);
+
+    if (!pathname) {
+      sendText(response, 404, "Download route not found");
+      return;
+    }
+
     const entry = await resolveDownloadEntry(process.env, pathname);
 
     if (!entry) {
-      return new Response("Download not found", { status: 404 });
+      sendText(response, 404, "Download not found");
+      return;
     }
 
-    return new Response(null, {
-      status: 302,
-      headers: {
-        "Cache-Control": "no-store",
-        "Location": entry.downloadUrl,
-      },
-    });
+    response.statusCode = 302;
+    response.setHeader("Cache-Control", "no-store");
+    response.setHeader("Location", entry.downloadUrl);
+    response.end();
   } catch (error) {
-    return new Response(error instanceof Error ? error.message : "Failed to resolve download", {
-      status: 500,
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-      },
-    });
+    sendText(response, 500, error instanceof Error ? error.message : "Failed to resolve download");
   }
-}
-
-export function GET(request: Request) {
-  return handleRequest(request);
-}
-
-export function HEAD(request: Request) {
-  return handleRequest(request);
 }
