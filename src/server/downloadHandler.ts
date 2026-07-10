@@ -9,7 +9,7 @@ type DownloadHandlerOptions = {
   deliveryMode?: DownloadDeliveryMode;
 };
 
-function parseDownloadPath(pathname: string) {
+export function parseDownloadPath(pathname: string) {
   const parts = pathname.split("/").filter(Boolean).map(decodeURIComponent);
   const downloadIndex = parts.lastIndexOf("download");
 
@@ -47,6 +47,19 @@ function findLatestEntry(entries: VersionEntry[], branch: string) {
 function findFileEntry(entries: VersionEntry[], branch: string, fileName: string) {
   const candidates = entries.filter(entry => entry.branch === branch && entry.fileName === fileName);
   return candidates.length === 1 ? candidates[0] : null;
+}
+
+export async function resolveDownloadEntry(env: ProviderEnvironment, pathname: string) {
+  const route = parseDownloadPath(pathname);
+
+  if (!route) {
+    return null;
+  }
+
+  const entries = await loadEntries(env);
+  return route.type === "latest"
+    ? findLatestEntry(entries, route.branch)
+    : findFileEntry(entries, route.branch, route.fileName);
 }
 
 function waitForDrain(response: any) {
@@ -117,20 +130,9 @@ export async function handleDownloadRequest(
   options: DownloadHandlerOptions = {}
 ) {
   const url = new URL(request.url ?? "/", "http://localhost");
-  const route = parseDownloadPath(url.pathname);
-
-  if (!route) {
-    response.statusCode = 404;
-    response.end("Download route not found");
-    return;
-  }
 
   try {
-    const entries = await loadEntries(env);
-    const entry =
-      route.type === "latest"
-        ? findLatestEntry(entries, route.branch)
-        : findFileEntry(entries, route.branch, route.fileName);
+    const entry = await resolveDownloadEntry(env, url.pathname);
 
     if (!entry) {
       response.statusCode = 404;
