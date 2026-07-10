@@ -13,7 +13,9 @@
     "refresh": "Обновить",
     "resetFilters": "Сбросить фильтры",
     "retry": "Повторить",
-    "downloadChecksum": "Скачать checksum"
+    "downloadChecksum": "Скачать checksum",
+    "copyDirectLink": "Скопировать direct link",
+    "copyDownloadLink": "Скопировать download link"
   },
   "branches": {
     "dev": "Dev",

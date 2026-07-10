@@ -1,5 +1,5 @@
 import { Button, Dropdown } from "@heroui/react";
-import { Check, ChevronDown, Copy, Download, Fingerprint } from "lucide-react";
+import { Check, ChevronDown, Copy, Download, Fingerprint, Link } from "lucide-react";
 import type { Key } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,8 +7,9 @@ import { copyToClipboard } from "../utils/clipboard";
 
 type DownloadSplitButtonProps = {
   checksumUrl?: string | null;
+  directUrl: string;
+  downloadUrl: string;
   fileName: string;
-  url: string;
 };
 
 function startDownload(url: string) {
@@ -20,19 +21,28 @@ function startDownload(url: string) {
   link.remove();
 }
 
-export function DownloadSplitButton({ checksumUrl, fileName, url }: DownloadSplitButtonProps) {
+export function DownloadSplitButton({
+  checksumUrl,
+  directUrl,
+  downloadUrl,
+  fileName,
+}: DownloadSplitButtonProps) {
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<"direct" | "download" | null>(null);
 
-  const handleCopy = async () => {
+  const handleCopy = async (key: "direct" | "download", url: string) => {
     await copyToClipboard(url);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1600);
+    setCopiedKey(key);
+    window.setTimeout(() => setCopiedKey(null), 1600);
   };
 
   const onAction = (key: Key | null) => {
-    if (key === "copy-link") {
-      void handleCopy();
+    if (key === "copy-direct-link") {
+      void handleCopy("direct", directUrl);
+    }
+
+    if (key === "copy-download-link") {
+      void handleCopy("download", downloadUrl);
     }
 
     if (key === "download-checksum" && checksumUrl) {
@@ -42,7 +52,7 @@ export function DownloadSplitButton({ checksumUrl, fileName, url }: DownloadSpli
 
   return (
     <div className="inline-flex items-stretch overflow-hidden rounded-full">
-      <Button className="rounded-r-none" onPress={() => startDownload(url)} variant="primary">
+      <Button className="rounded-r-none" onPress={() => startDownload(downloadUrl)} variant="primary">
         <Download aria-hidden="true" size={16} />
         {t("common.download")}
       </Button>
@@ -60,18 +70,37 @@ export function DownloadSplitButton({ checksumUrl, fileName, url }: DownloadSpli
         <Dropdown.Popover>
           <Dropdown.Menu aria-label={fileName} onAction={onAction}>
             <Dropdown.Item
-              id="copy-link"
-              key="copy-link"
-              textValue={copied ? t("common.copied") : t("common.copyLink")}
+              id="copy-direct-link"
+              key="copy-direct-link"
+              textValue={copiedKey === "direct" ? t("common.copied") : t("common.copyDirectLink")}
             >
               <span className="flex items-center gap-2">
-                {copied ? <Check aria-hidden="true" size={16} /> : <Copy aria-hidden="true" size={16} />}
-                {copied ? t("common.copied") : t("common.copyLink")}
+                {copiedKey === "direct" ? (
+                  <Check aria-hidden="true" size={16} />
+                ) : (
+                  <Link aria-hidden="true" size={16} />
+                )}
+                {copiedKey === "direct" ? t("common.copied") : t("common.copyDirectLink")}
+              </span>
+            </Dropdown.Item>
+            <Dropdown.Item
+              id="copy-download-link"
+              key="copy-download-link"
+              textValue={copiedKey === "download" ? t("common.copied") : t("common.copyDownloadLink")}
+            >
+              <span className="flex items-center gap-2">
+                {copiedKey === "download" ? (
+                  <Check aria-hidden="true" size={16} />
+                ) : (
+                  <Copy aria-hidden="true" size={16} />
+                )}
+                {copiedKey === "download" ? t("common.copied") : t("common.copyDownloadLink")}
               </span>
             </Dropdown.Item>
             <Dropdown.Item
               id="download-checksum"
               key="download-checksum"
+              className="border-t border-default-200 pt-2"
               isDisabled={!checksumUrl}
               textValue={t("common.downloadChecksum")}
             >

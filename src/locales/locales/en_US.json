@@ -13,7 +13,9 @@
     "refresh": "Refresh",
     "resetFilters": "Reset filters",
     "retry": "Retry",
-    "downloadChecksum": "Download checksum"
+    "downloadChecksum": "Download checksum",
+    "copyDirectLink": "Copy direct link",
+    "copyDownloadLink": "Copy download link"
   },
   "branches": {
     "dev": "Dev",

@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { DownloadSplitButton } from "./DownloadSplitButton";
 import { LoadingState } from "./LoadingState";
 import type { VersionEntry } from "../types";
+import { createDownloadFilePath } from "../utils/downloadRoutes";
 
 type VersionsTableProps = {
   entries: VersionEntry[];
@@ -62,8 +63,14 @@ export function VersionsTable({ entries, error, isLoading, onRetry }: VersionsTa
             <Table.Column>{t("home.file")}</Table.Column>
             <Table.Column>{t("common.download")}</Table.Column>
           </Table.Header>
-          <Table.Body items={entries}>
-            {entry => (
+            <Table.Body items={entries}>
+            {entry => {
+              const downloadUrl = new URL(
+                createDownloadFilePath(entry.branch, entry.fileName),
+                window.location.origin
+              ).toString();
+
+              return (
               <Table.Row id={entry.id}>
                 <Table.Cell>
                   <div>
@@ -99,12 +106,14 @@ export function VersionsTable({ entries, error, isLoading, onRetry }: VersionsTa
                 <Table.Cell>
                   <DownloadSplitButton
                     checksumUrl={entry.checksumUrl}
+                    directUrl={entry.downloadUrl}
+                    downloadUrl={downloadUrl}
                     fileName={entry.fileName}
-                    url={entry.downloadUrl}
                   />
                 </Table.Cell>
               </Table.Row>
-            )}
+              );
+            }}
           </Table.Body>
         </Table.Content>
       </Table.ScrollContainer>
