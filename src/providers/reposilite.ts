@@ -1,5 +1,5 @@
 import type { Branch, VersionEntry, VersionProviderSource } from "../types";
-import { normalizeSeries } from "../utils/versioning";
+import { normalizeSeries } from "../utils/versioning.js";
 
 type ReposiliteVersionProviderSourceOptions = {
   artifactId: string;

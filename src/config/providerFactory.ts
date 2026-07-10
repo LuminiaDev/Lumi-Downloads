@@ -1,4 +1,4 @@
-import { ReposiliteVersionProviderSource } from "../providers/reposilite";
+import { ReposiliteVersionProviderSource } from "../providers/reposilite.js";
 import type { VersionProviderSource } from "../types";
 
 type ProviderEnvironment = Record<string, string | undefined>;

@@ -1,4 +1,4 @@
-import { resolveDownloadEntry } from "../src/server/downloadHandler";
+import { resolveDownloadEntry } from "../src/server/downloadHandler.js";
 
 declare const process: {
   env: Record<string, string | undefined>;

@@ -1,6 +1,6 @@
-import { createProviderSources } from "../config/providerFactory";
+import { createProviderSources } from "../config/providerFactory.js";
 import type { VersionEntry } from "../types";
-import { sortEntries } from "../utils/versioning";
+import { sortEntries } from "../utils/versioning.js";
 
 type ProviderEnvironment = Record<string, string | undefined>;
 type DownloadDeliveryMode = "redirect" | "stream";
