@@ -3,6 +3,11 @@ import type { VersionEntry } from "../types";
 import { sortEntries } from "../utils/versioning";
 
 type ProviderEnvironment = Record<string, string | undefined>;
+type DownloadDeliveryMode = "redirect" | "stream";
+
+type DownloadHandlerOptions = {
+  deliveryMode?: DownloadDeliveryMode;
+};
 
 function parseDownloadPath(pathname: string) {
   const parts = pathname.split("/").filter(Boolean).map(decodeURIComponent);
@@ -98,10 +103,18 @@ async function sendFile(response: any, requestMethod: string | undefined, entry:
   await pipeUpstreamBody(response, upstream.body);
 }
 
+function redirectToFile(response: any, entry: VersionEntry) {
+  response.statusCode = 302;
+  response.setHeader("Location", entry.downloadUrl);
+  response.setHeader("Cache-Control", "no-store");
+  response.end();
+}
+
 export async function handleDownloadRequest(
   env: ProviderEnvironment,
   request: { method?: string; url?: string },
-  response: any
+  response: any,
+  options: DownloadHandlerOptions = {}
 ) {
   const url = new URL(request.url ?? "/", "http://localhost");
   const route = parseDownloadPath(url.pathname);
@@ -122,6 +135,11 @@ export async function handleDownloadRequest(
     if (!entry) {
       response.statusCode = 404;
       response.end("Download not found");
+      return;
+    }
+
+    if (options.deliveryMode === "redirect") {
+      redirectToFile(response, entry);
       return;
     }
 

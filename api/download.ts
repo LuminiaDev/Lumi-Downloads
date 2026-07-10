@@ -18,8 +18,13 @@ export default async function handler(request: any, response: any) {
     return;
   }
 
-  await handleDownloadRequest(process.env, {
-    method: request.method,
-    url: `/download/${encodeURIComponent(branch)}/${encodeURIComponent(target)}`,
-  }, response);
+  await handleDownloadRequest(
+    process.env,
+    {
+      method: request.method,
+      url: `/download/${encodeURIComponent(branch)}/${encodeURIComponent(target)}`,
+    },
+    response,
+    { deliveryMode: "redirect" }
+  );
 }
