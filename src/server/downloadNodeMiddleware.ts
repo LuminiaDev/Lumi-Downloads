@@ -1,4 +1,4 @@
-import { handleDownloadRequest } from "./downloadHandler";
+import { handleDownloadRequest } from "./downloadHandler.js";
 
 type ProviderEnvironment = Record<string, string | undefined>;
 

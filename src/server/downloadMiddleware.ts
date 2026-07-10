@@ -1,5 +1,5 @@
 import type { Plugin } from "vite";
-import { createDownloadNodeMiddleware } from "./downloadNodeMiddleware";
+import { createDownloadNodeMiddleware } from "./downloadNodeMiddleware.js";
 
 type ProviderEnvironment = Record<string, string | undefined>;
 
