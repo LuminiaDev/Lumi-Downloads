@@ -1,8 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/download/:path*",
-      "destination": "/api/download/:path*"
+      "source": "/download/:branch/latest",
+      "destination": "/api/download?branch=:branch&target=latest"
+    },
+    {
+      "source": "/download/:branch/:fileName",
+      "destination": "/api/download?branch=:branch&target=:fileName"
     },
     {
       "source": "/(.*)",
