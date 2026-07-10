@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { providerSources } from "../config/providers";
 import { sortEntries, sortSeries } from "../utils/versioning";
 import type { Branch, VersionEntry } from "../types";
@@ -18,11 +19,37 @@ function matchesBranchSelection(values: string[], entry: VersionEntry) {
   return values.includes(entry.branch);
 }
 
+function parseMultiValue(value: string | null) {
+  const values =
+    value
+      ?.split(",")
+      .map(item => item.trim())
+      .filter(Boolean) ?? [];
+
+  return values.length > 0 && !values.includes("all") ? values : ["all"];
+}
+
+function parseLimit(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const limit = Number.parseInt(value, 10);
+  return Number.isFinite(limit) && limit > 0 ? limit : null;
+}
+
+function serializeFilter(values: string[]) {
+  const normalizedValues = values.filter(value => value !== "all");
+  return normalizedValues.length > 0 ? normalizedValues.join(",") : null;
+}
+
 export function useVersions() {
   const providers = useMemo(() => providerSources, []);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [reloadToken, setReloadToken] = useState(0);
-  const [branchFilter, setBranchFilter] = useState<BranchFilter>(["all"]);
-  const [seriesFilter, setSeriesFilter] = useState<string[]>(["all"]);
+  const branchFilter = parseMultiValue(searchParams.get("branches")) as BranchFilter;
+  const seriesFilter = parseMultiValue(searchParams.get("versions"));
+  const limit = parseLimit(searchParams.get("limit"));
 
   const loadEntries = useCallback(async () => {
     const result = await Promise.all(providers.map(provider => provider.loadEntries()));
@@ -63,17 +90,40 @@ export function useVersions() {
   );
 
   const filteredEntries = useMemo(() => {
-    return entries.filter(entry => {
+    const nextEntries = entries.filter(entry => {
       const matchesBranch = matchesBranchSelection(branchFilter, entry);
       const matchesSeries = matchesSelection(seriesFilter, entry.series);
       return matchesBranch && matchesSeries;
     });
-  }, [branchFilter, entries, seriesFilter]);
+
+    return limit ? nextEntries.slice(0, limit) : nextEntries;
+  }, [branchFilter, entries, limit, seriesFilter]);
 
   const reload = () => setReloadToken(current => current + 1);
+  const updateFilterParam = (key: string, values: string[]) => {
+    setSearchParams(current => {
+      const nextParams = new URLSearchParams(current);
+      const serializedValue = serializeFilter(values);
+
+      if (serializedValue) {
+        nextParams.set(key, serializedValue);
+      } else {
+        nextParams.delete(key);
+      }
+
+      return nextParams;
+    });
+  };
+  const setBranchFilter = (value: BranchFilter) => updateFilterParam("branches", value);
+  const setSeriesFilter = (value: string[]) => updateFilterParam("versions", value);
   const resetFilters = () => {
-    setBranchFilter(["all"]);
-    setSeriesFilter(["all"]);
+    setSearchParams(current => {
+      const nextParams = new URLSearchParams(current);
+      nextParams.delete("branches");
+      nextParams.delete("versions");
+      nextParams.delete("limit");
+      return nextParams;
+    });
   };
 
   return {
