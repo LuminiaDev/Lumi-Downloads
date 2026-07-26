@@ -5,7 +5,8 @@ import { Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { useTheme } from "./hooks/useTheme";
 import { resolveLocale } from "./locales";
-import { HomePage } from "./pages/HomePage";
+import { ProjectPage } from "./pages/ProjectPage";
+import { DefaultProjectRedirect, ProjectAliasRedirect } from "./pages/ProjectRedirect";
 
 function App() {
   const { i18n } = useTranslation();
@@ -22,7 +23,10 @@ function App() {
     <I18nProvider locale={locale.bcp47}>
       <Routes>
         <Route element={<Layout onThemeModeChange={setThemeMode} themeMode={themeMode} />}>
-          <Route element={<HomePage />} index />
+          <Route element={<DefaultProjectRedirect />} index />
+          <Route element={<ProjectPage />} path="project/:projectId" />
+          <Route element={<ProjectAliasRedirect />} path="p/:projectId" />
+          <Route element={<DefaultProjectRedirect />} path="*" />
         </Route>
       </Routes>
     </I18nProvider>

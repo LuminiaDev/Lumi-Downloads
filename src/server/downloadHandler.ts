@@ -1,4 +1,5 @@
-import { createProviderSources } from "../config/providerFactory.js";
+import { createDownloadProjects } from "../config/projectFactory.js";
+import { ProjectService } from "../services/project.service.js";
 import type { VersionEntry } from "../types";
 import { sortEntries } from "../utils/versioning.js";
 
@@ -17,22 +18,39 @@ export function parseDownloadPath(pathname: string) {
     return null;
   }
 
-  const branch = parts[downloadIndex + 1];
-  const target = parts[downloadIndex + 2];
+  const routeParts = parts.slice(downloadIndex + 1);
+
+  if (routeParts.length !== 2 && routeParts.length !== 3) {
+    return null;
+  }
+
+  const [projectId, branch, target] =
+    routeParts.length === 3
+      ? routeParts
+      : [null, routeParts[0], routeParts[1]];
 
   if (!branch || !target) {
     return null;
   }
 
   if (target === "latest") {
-    return { branch, type: "latest" as const };
+    return { branch, projectId, type: "latest" as const };
   }
 
-  return { branch, fileName: target, type: "file" as const };
+  return { branch, fileName: target, projectId, type: "file" as const };
 }
 
-async function loadEntries(env: ProviderEnvironment) {
-  const providers = createProviderSources(env);
+async function loadEntries(env: ProviderEnvironment, projectId: string | null) {
+  const projectService = new ProjectService(createDownloadProjects(env));
+  const project = projectId
+    ? projectService.findById(projectId)
+    : projectService.getDefault();
+
+  if (!project) {
+    return [];
+  }
+
+  const providers = project.providers;
   const result = await Promise.all(providers.map(provider => provider.loadEntries()));
   return sortEntries(
     result.flat(),
@@ -56,7 +74,7 @@ export async function resolveDownloadEntry(env: ProviderEnvironment, pathname: s
     return null;
   }
 
-  const entries = await loadEntries(env);
+  const entries = await loadEntries(env, route.projectId);
   return route.type === "latest"
     ? findLatestEntry(entries, route.branch)
     : findFileEntry(entries, route.branch, route.fileName);

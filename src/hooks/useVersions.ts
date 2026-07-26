@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { providerSources } from "../config/providers";
 import { sortEntries, sortSeries } from "../utils/versioning";
-import type { Branch, VersionEntry } from "../types";
+import type { Branch, VersionEntry, VersionProviderSource } from "../types";
 import { useAsync } from "./useAsync";
 
 export type BranchFilter = Array<"all" | Branch>;
@@ -43,8 +42,7 @@ function serializeFilter(values: string[]) {
   return normalizedValues.length > 0 ? normalizedValues.join(",") : null;
 }
 
-export function useVersions() {
-  const providers = useMemo(() => providerSources, []);
+export function useVersions(providers: VersionProviderSource[]) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [reloadToken, setReloadToken] = useState(0);
   const branchFilter = parseMultiValue(searchParams.get("branches")) as BranchFilter;

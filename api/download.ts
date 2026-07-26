@@ -16,11 +16,13 @@ type VercelResponse = {
 
 function createDownloadPath(request: VercelRequest) {
   const url = new URL(request.url ?? "/", "https://lumi-downloads.invalid");
+  const projectId = url.searchParams.get("projectId");
   const branch = url.searchParams.get("branch");
   const target = url.searchParams.get("target");
 
   if (branch && target) {
-    return `/download/${encodeURIComponent(branch)}/${encodeURIComponent(target)}`;
+    const projectPath = projectId ? `/${encodeURIComponent(projectId)}` : "";
+    return `/download${projectPath}/${encodeURIComponent(branch)}/${encodeURIComponent(target)}`;
   }
 
   return url.pathname.startsWith("/download/") ? url.pathname : null;

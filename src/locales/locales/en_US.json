@@ -1,10 +1,11 @@
 {
   "app": {
-    "title": "Lumi Downloads"
+    "projectTitle": "{{project}} Downloads",
+    "title": "Downloads"
   },
   "header": {
     "language": "Language",
-    "title": "Lumi Downloads"
+    "title": "Downloads"
   },
   "common": {
     "copyLink": "Copy link",
@@ -27,6 +28,9 @@
     "allVersions": "All versions",
     "branch": "Branch",
     "version": "Version"
+  },
+  "projects": {
+    "select": "Select project"
   },
   "theme": {
     "dark": "Dark",

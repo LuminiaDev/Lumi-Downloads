@@ -1,5 +1,13 @@
 export type Branch = string;
 
+export type DownloadProject = {
+  description: string;
+  domains: string[];
+  id: string;
+  name: string;
+  providers: VersionProviderSource[];
+};
+
 export type VersionEntry = {
   branch: Branch;
   branchLabel: string;

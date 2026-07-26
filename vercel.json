@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/download/:projectId/:branch/latest",
+      "destination": "/api/download?projectId=:projectId&branch=:branch&target=latest"
+    },
+    {
+      "source": "/download/:projectId/:branch/:fileName",
+      "destination": "/api/download?projectId=:projectId&branch=:branch&target=:fileName"
+    },
+    {
       "source": "/download/:branch/latest",
       "destination": "/api/download?branch=:branch&target=latest"
     },

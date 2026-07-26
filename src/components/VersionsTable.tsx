@@ -17,9 +17,16 @@ type VersionsTableProps = {
   error: Error | null;
   isLoading: boolean;
   onRetry: () => void;
+  projectId: string;
 };
 
-export function VersionsTable({ entries, error, isLoading, onRetry }: VersionsTableProps) {
+export function VersionsTable({
+  entries,
+  error,
+  isLoading,
+  onRetry,
+  projectId,
+}: VersionsTableProps) {
   const { t } = useTranslation();
 
   if (isLoading) {
@@ -66,7 +73,7 @@ export function VersionsTable({ entries, error, isLoading, onRetry }: VersionsTa
             <Table.Body items={entries}>
             {entry => {
               const downloadUrl = new URL(
-                createDownloadFilePath(entry.branch, entry.fileName),
+                createDownloadFilePath(projectId, entry.branch, entry.fileName),
                 window.location.origin
               ).toString();
 

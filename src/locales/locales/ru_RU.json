@@ -1,10 +1,11 @@
 {
   "app": {
-    "title": "Загрузки Lumi"
+    "projectTitle": "Загрузки {{project}}",
+    "title": "Загрузки"
   },
   "header": {
     "language": "Язык",
-    "title": "Загрузки Lumi"
+    "title": "Загрузки"
   },
   "common": {
     "copyLink": "Скопировать ссылку",
@@ -27,6 +28,9 @@
     "allVersions": "Все версии",
     "branch": "Ветка",
     "version": "Версия"
+  },
+  "projects": {
+    "select": "Выбрать проект"
   },
   "theme": {
     "dark": "Тёмная",
