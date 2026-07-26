@@ -1,4 +1,4 @@
-import type { VersionProviderSource } from "../types";
+import type { VersionEntry, VersionProviderSource } from "../types";
 import { sortEntries } from "../utils/versioning.js";
 
 export type VersionFilters = {
@@ -6,6 +6,54 @@ export type VersionFilters = {
   limit?: number | null;
   versions?: string[];
 };
+
+export const versionLookupFields = [
+  "branch",
+  "branchLabel",
+  "checksumUrl",
+  "downloadUrl",
+  "fileName",
+  "id",
+  "logicalVersion",
+  "modifiedAt",
+  "providerId",
+  "providerLabel",
+  "series",
+  "showInAllBranches",
+  "sourceText",
+  "sourceUrl",
+  "version",
+] as const satisfies readonly Exclude<keyof VersionEntry, "properties">[];
+
+export type VersionLookupField =
+  | (typeof versionLookupFields)[number]
+  | `properties.${string}`;
+
+export type VersionLookupFilter = {
+  field: VersionLookupField;
+  value: string;
+};
+
+function normalizeTimestamp(timestamp: number) {
+  const milliseconds = timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp;
+  return new Date(milliseconds).toISOString();
+}
+
+function matchesLookupFilter(entry: VersionEntry, filter: VersionLookupFilter) {
+  if (filter.field.startsWith("properties.")) {
+    const property = filter.field.slice("properties.".length);
+    return entry.properties?.[property] === filter.value;
+  }
+
+  const field = filter.field as (typeof versionLookupFields)[number];
+  const entryValue = entry[field];
+
+  if (field === "modifiedAt" && typeof entryValue === "number") {
+    return filter.value === String(entryValue) || filter.value === normalizeTimestamp(entryValue);
+  }
+
+  return entryValue !== null && String(entryValue) === filter.value;
+}
 
 export class VersionService {
   constructor(private readonly providers: VersionProviderSource[]) {}
@@ -32,6 +80,18 @@ export class VersionService {
     });
 
     return filters.limit ? filteredEntries.slice(0, filters.limit) : filteredEntries;
+  }
+
+  async lookup(branch: string, filters: VersionLookupFilter[]) {
+    const branchEntries = (await this.loadAll()).filter(entry => entry.branch === branch);
+    const matches = branchEntries.filter(entry =>
+      filters.every(filter => matchesLookupFilter(entry, filter))
+    );
+
+    return {
+      branchEntries,
+      matches,
+    };
   }
 
   private normalizeFilter(values: string[] | undefined) {
