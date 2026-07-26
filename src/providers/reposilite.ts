@@ -114,8 +114,7 @@ function normalizeGitHubRepositoryUrl(properties: Record<string, string>) {
   return null;
 }
 
-function buildSourceFromProperties(content: string) {
-  const properties = parseProperties(content);
+function buildSourceFromProperties(properties: Record<string, string>) {
   const commitId = properties["git.commit.id"];
   const repositoryUrl = normalizeGitHubRepositoryUrl(properties);
 
@@ -219,8 +218,9 @@ export class ReposiliteVersionProviderSource implements VersionProviderSource {
     )
       ? await fetchTextOrNull(this.buildDownloadUrl(propertiesPath))
       : null;
-    const source = propertiesContent
-      ? buildSourceFromProperties(propertiesContent)
+    const properties = propertiesContent ? parseProperties(propertiesContent) : null;
+    const source = properties
+      ? buildSourceFromProperties(properties)
       : { sourceText: null, sourceUrl: null };
 
     return {
@@ -231,6 +231,7 @@ export class ReposiliteVersionProviderSource implements VersionProviderSource {
       id: `${this.id}:${logicalVersion}:${file.name}`,
       logicalVersion,
       modifiedAt: file.lastModifiedTime ?? null,
+      properties,
       providerId: this.id,
       providerLabel: this.label,
       series: normalizeSeries(logicalVersion),

@@ -16,6 +16,7 @@ export type VersionEntry = {
   id: string;
   logicalVersion: string;
   modifiedAt: number | null;
+  properties: Record<string, string> | null;
   providerId: string;
   providerLabel: string;
   series: string;

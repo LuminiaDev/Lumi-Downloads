@@ -54,6 +54,8 @@ GET /api/v1/projects/lumi/versions?branches=dev&versions=1.6&limit=1
 
 Without `branches`, the endpoint returns only entries whose provider is configured to appear in
 the all-branches view. Passing a branch explicitly also makes hidden legacy branches available.
+Each version may include a `properties` object with provider-specific build metadata. The
+Reposilite provider fills it from the matching `.properties` file when one exists.
 
 ## Responses
 

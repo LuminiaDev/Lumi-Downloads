@@ -74,6 +74,7 @@ export function serializeVersion(
     id: entry.id,
     logicalVersion: entry.logicalVersion,
     modifiedAt: toIsoTimestamp(entry.modifiedAt),
+    properties: entry.properties,
     provider: {
       id: entry.providerId,
       label: entry.providerLabel,
