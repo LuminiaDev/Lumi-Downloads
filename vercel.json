@@ -1,20 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/download/:projectId/:branch/latest",
-      "destination": "/api/download?projectId=:projectId&branch=:branch&target=latest"
+      "source": "/api/:path*",
+      "destination": "/api/server?path=/api/:path*"
     },
     {
-      "source": "/download/:projectId/:branch/:fileName",
-      "destination": "/api/download?projectId=:projectId&branch=:branch&target=:fileName"
-    },
-    {
-      "source": "/download/:branch/latest",
-      "destination": "/api/download?branch=:branch&target=latest"
-    },
-    {
-      "source": "/download/:branch/:fileName",
-      "destination": "/api/download?branch=:branch&target=:fileName"
+      "source": "/download/:path*",
+      "destination": "/api/server?path=/download/:path*"
     },
     {
       "source": "/(.*)",

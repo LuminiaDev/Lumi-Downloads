@@ -24,13 +24,30 @@ Legacy routes without a project ID resolve against the first configured project:
 - `/download/:branch/latest`
 - `/download/:branch/:fileName`
 
-The download resolver is platform-neutral:
+The HTTP server is implemented as a platform-neutral Express application:
 
-- Core resolver: `src/server/downloadHandler.ts`
-- Generic Node/connect middleware: `src/server/downloadNodeMiddleware.ts`
-- Vite dev/preview adapter: `src/server/downloadMiddleware.ts`
-- Vercel adapter: `api/download.ts`
+- Express application: `src/server/app.ts`
+- Download router: `src/server/download/download.router.ts`
+- Download resolver: `src/server/download/download.service.ts`
+- Vite dev/preview adapter: `src/server/expressMiddleware.ts`
+- Vercel adapter: `api/server.ts`
 
-Any host that can run Node-style request/response handlers can mount `createDownloadNodeMiddleware()` at `/download/*`.
+Any Node hosting platform that supports Express can mount `createServerApp()`. Vite uses streaming
+downloads, while the Vercel adapter redirects to the provider file to avoid buffering large files
+inside a serverless function.
 
-For Vercel, `vercel.json` rewrites download routes to the Vercel Function adapter. This is only the Vercel deployment adapter, not the core implementation.
+For Vercel, `vercel.json` rewrites API and download routes to the same Express Function adapter.
+This is only the Vercel deployment adapter, not the core implementation.
+
+The public API follows the same adapter model:
+
+- Versioned API router: `src/server/api/v1/router.ts`
+- Resource routes: `src/server/api/v1/routes`
+- Query validation: `src/server/api/v1/validation.ts`
+- Response serializers: `src/server/api/v1/serializers.ts`
+- Shared Express application: `src/server/app.ts`
+- Vercel adapter: `api/server.ts`
+- Public routes: `/api/v1/*`
+
+See `API.md` for endpoints, filters, and response formats. Additional incompatible versions can
+be implemented in a separate `src/server/api/v2` module without changing v1.
