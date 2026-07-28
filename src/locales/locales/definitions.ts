@@ -5,6 +5,7 @@ import fr_FR from "./fr_FR.json";
 import ja_JP from "./ja_JP.json";
 import pl_PL from "./pl_PL.json";
 import pt_BR from "./pt_BR.json";
+import ro_RO from "./ro_RO.json";
 import ru_RU from "./ru_RU.json";
 import tr_TR from "./tr_TR.json";
 import uk_UA from "./uk_UA.json";
@@ -94,6 +95,15 @@ export const localeDefinitions = [
     label: "Portuguese (Brazil)",
     messages: pt_BR,
     nativeLabel: "Português (Brasil)",
+  },
+  {
+    aliases: ["ro", "ro-ro", "ro_ro"],
+    bcp47: "ro-RO",
+    code: "ro_RO",
+    flagCountryCode: "ro",
+    label: "Romanian",
+    messages: ro_RO,
+    nativeLabel: "Română",
   },
   {
     aliases: ["tr", "tr-tr", "tr_tr"],
