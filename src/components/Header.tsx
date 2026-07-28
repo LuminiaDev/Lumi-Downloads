@@ -1,4 +1,12 @@
-import { Button, Dropdown, Label, ToggleButton, ToggleButtonGroup } from "@heroui/react";
+import {
+  Button,
+  Dropdown,
+  Label,
+  Modal,
+  ToggleButton,
+  ToggleButtonGroup,
+  useOverlayState,
+} from "@heroui/react";
 import { Check, ChevronDown, Monitor, Moon, Sun } from "lucide-react";
 import type { Key } from "react";
 import { CircleFlag } from "react-circle-flags";
@@ -49,6 +57,8 @@ function LanguageMenu({ activeLocaleCode, label, onAction }: LanguageMenuProps) 
 
 export function Header({ onThemeModeChange, themeMode }: HeaderProps) {
   const { i18n, t } = useTranslation();
+  const languageModal = useOverlayState();
+  const themeModal = useOverlayState();
   const activeLocale = resolveLocale(i18n.resolvedLanguage ?? i18n.language);
   const activeLocaleCode = activeLocale.code;
   const activeTheme = themeItems.find(item => item.id === themeMode) ?? themeItems[2];
@@ -70,6 +80,16 @@ export function Header({ onThemeModeChange, themeMode }: HeaderProps) {
     if (key === "light" || key === "dark" || key === "system") {
       onThemeModeChange(key);
     }
+  };
+
+  const selectMobileLanguage = (localeCode: string) => {
+    changeLanguage(localeCode);
+    languageModal.close();
+  };
+
+  const selectMobileTheme = (theme: ThemeMode) => {
+    onThemeModeChange(theme);
+    themeModal.close();
   };
 
   const changeTheme = (keys: "all" | Set<Key>) => {
@@ -108,28 +128,55 @@ export function Header({ onThemeModeChange, themeMode }: HeaderProps) {
           </div>
 
           <div className="sm:hidden">
-            <Dropdown>
-              <Dropdown.Trigger>
-                <Button
-                  aria-label={t("header.language")}
-                  className="h-10 rounded-full border-default-200 bg-default-100/80 px-3 text-foreground"
-                  variant="outline"
-                >
-                  <CircleFlag
-                    className="size-5.5 shrink-0"
-                    countryCode={activeLocale.flagCountryCode}
-                    height="20"
-                  />
-                  <span>{activeLocale.nativeLabel}</span>
-                  <ChevronDown aria-hidden="true" size={16} />
-                </Button>
-              </Dropdown.Trigger>
-              <LanguageMenu
-                activeLocaleCode={activeLocaleCode}
-                label={t("header.language")}
-                onAction={changeLanguage}
-              />
-            </Dropdown>
+            <Modal state={languageModal}>
+              <Button
+                aria-label={t("header.language")}
+                className="h-10 rounded-full border-default-200 bg-default-100/80 px-3 text-foreground"
+                variant="outline"
+              >
+                <CircleFlag
+                  className="size-5.5 shrink-0"
+                  countryCode={activeLocale.flagCountryCode}
+                  height="20"
+                />
+                <span>{activeLocale.nativeLabel}</span>
+                <ChevronDown aria-hidden="true" size={16} />
+              </Button>
+              <Modal.Backdrop>
+                <Modal.Container placement="bottom" size="sm">
+                  <Modal.Dialog className="max-h-[85dvh]">
+                    <Modal.CloseTrigger />
+                    <Modal.Header>
+                      <Modal.Heading>{t("header.language")}</Modal.Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <div className="flex flex-col gap-2">
+                        {localeDefinitions.map(item => (
+                          <Button
+                            className="w-full justify-between px-3"
+                            key={item.code}
+                            onPress={() => selectMobileLanguage(item.code)}
+                            variant={item.code === activeLocaleCode ? "secondary" : "tertiary"}
+                          >
+                            <span className="flex items-center gap-3">
+                              <CircleFlag
+                                className="size-6 shrink-0"
+                                countryCode={item.flagCountryCode}
+                                height="24"
+                              />
+                              <span>{item.nativeLabel}</span>
+                            </span>
+                            {item.code === activeLocaleCode && (
+                              <Check aria-hidden="true" size={18} />
+                            )}
+                          </Button>
+                        ))}
+                      </div>
+                    </Modal.Body>
+                  </Modal.Dialog>
+                </Modal.Container>
+              </Modal.Backdrop>
+            </Modal>
           </div>
 
           <div className="hidden sm:block">
@@ -149,34 +196,47 @@ export function Header({ onThemeModeChange, themeMode }: HeaderProps) {
             </ToggleButtonGroup>
           </div>
 
-          <Dropdown>
-            <Dropdown.Trigger>
+          <div className="sm:hidden">
+            <Modal state={themeModal}>
               <Button
                 aria-label={t(activeTheme.labelKey)}
-                className="min-w-14 gap-1 px-2 sm:hidden"
+                className="min-w-14 gap-1 px-2"
                 style={{ color: "var(--color-foreground)" }}
                 variant="secondary"
               >
                 <ActiveThemeIcon aria-hidden="true" size={16} />
                 <ChevronDown aria-hidden="true" size={14} />
               </Button>
-            </Dropdown.Trigger>
-            <Dropdown.Popover>
-              <Dropdown.Menu aria-label="Theme switcher" onAction={selectTheme}>
-                {themeItems.map(({ id, icon: Icon, labelKey }) => (
-                  <Dropdown.Item id={id} key={id} textValue={t(labelKey)}>
-                    <span className="flex w-full items-center justify-between gap-4">
-                      <span className="flex items-center gap-2">
-                        <Icon aria-hidden="true" size={16} />
-                        {t(labelKey)}
-                      </span>
-                      {id === themeMode && <Check aria-hidden="true" size={16} />}
-                    </span>
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown.Popover>
-          </Dropdown>
+              <Modal.Backdrop>
+                <Modal.Container placement="bottom" size="sm">
+                  <Modal.Dialog>
+                    <Modal.CloseTrigger />
+                    <Modal.Header>
+                      <Modal.Heading>{t("header.theme")}</Modal.Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <div className="flex flex-col gap-2">
+                        {themeItems.map(({ id, icon: Icon, labelKey }) => (
+                          <Button
+                            className="w-full justify-between px-3"
+                            key={id}
+                            onPress={() => selectMobileTheme(id)}
+                            variant={id === themeMode ? "secondary" : "tertiary"}
+                          >
+                            <span className="flex items-center gap-3">
+                              <Icon aria-hidden="true" size={18} />
+                              <span>{t(labelKey)}</span>
+                            </span>
+                            {id === themeMode && <Check aria-hidden="true" size={18} />}
+                          </Button>
+                        ))}
+                      </div>
+                    </Modal.Body>
+                  </Modal.Dialog>
+                </Modal.Container>
+              </Modal.Backdrop>
+            </Modal>
+          </div>
         </div>
       </div>
     </header>
