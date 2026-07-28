@@ -7,6 +7,7 @@ export type LocaleDefinition = {
   aliases: readonly string[];
   bcp47: string;
   code: string;
+  flagCountryCode: string;
   label: string;
   messages: LocaleMessages;
   nativeLabel: string;
@@ -17,6 +18,7 @@ export const localeDefinitions = [
     aliases: ["en", "en-us", "en_us"],
     bcp47: "en-US",
     code: "en_US",
+    flagCountryCode: "us",
     label: "English",
     messages: en_US,
     nativeLabel: "English",
@@ -25,6 +27,7 @@ export const localeDefinitions = [
     aliases: ["ru", "ru-ru", "ru_ru"],
     bcp47: "ru-RU",
     code: "ru_RU",
+    flagCountryCode: "ru",
     label: "Russian",
     messages: ru_RU,
     nativeLabel: "Русский",

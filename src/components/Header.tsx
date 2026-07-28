@@ -1,6 +1,7 @@
-import { Button, Dropdown, ToggleButton, ToggleButtonGroup } from "@heroui/react";
-import { Check, ChevronDown, Languages, Monitor, Moon, Sun } from "lucide-react";
+import { Button, Dropdown, Label, ToggleButton, ToggleButtonGroup } from "@heroui/react";
+import { Check, ChevronDown, Monitor, Moon, Sun } from "lucide-react";
 import type { Key } from "react";
+import { CircleFlag } from "react-circle-flags";
 import { useTranslation } from "react-i18next";
 import type { ThemeMode } from "../hooks/useTheme";
 import { localeDefinitions, resolveLocale } from "../locales";
@@ -29,7 +30,14 @@ function LanguageMenu({ activeLocaleCode, label, onAction }: LanguageMenuProps) 
         {localeDefinitions.map(item => (
           <Dropdown.Item id={item.code} key={item.code} textValue={item.nativeLabel}>
             <span className="flex w-full items-center justify-between gap-4">
-              <span>{item.nativeLabel}</span>
+              <span className="flex items-center gap-3">
+                <CircleFlag
+                  className="size-5.5 shrink-0"
+                  countryCode={item.flagCountryCode}
+                  height="20"
+                />
+                <Label>{item.nativeLabel}</Label>
+              </span>
               {item.code === activeLocaleCode && <Check aria-hidden="true" size={16} />}
             </span>
           </Dropdown.Item>
@@ -41,7 +49,8 @@ function LanguageMenu({ activeLocaleCode, label, onAction }: LanguageMenuProps) 
 
 export function Header({ onThemeModeChange, themeMode }: HeaderProps) {
   const { i18n, t } = useTranslation();
-  const activeLocaleCode = resolveLocale(i18n.resolvedLanguage ?? i18n.language).code;
+  const activeLocale = resolveLocale(i18n.resolvedLanguage ?? i18n.language);
+  const activeLocaleCode = activeLocale.code;
   const activeTheme = themeItems.find(item => item.id === themeMode) ?? themeItems[2];
   const ActiveThemeIcon = activeTheme.icon;
 
@@ -78,9 +87,15 @@ export function Header({ onThemeModeChange, themeMode }: HeaderProps) {
           <div className="hidden sm:block">
             <Dropdown>
               <Dropdown.Trigger>
-                <Button aria-label={t("header.language")} variant="ghost">
-                  <Languages aria-hidden="true" size={16} />
-                  {t("header.language")}
+                <Button aria-label={t("header.language")} variant="tertiary">
+                  <span className="flex items-center gap-3.5">
+                    <CircleFlag
+                      className="size-5.5 shrink-0"
+                      countryCode={activeLocale.flagCountryCode}
+                      height="20"
+                    />
+                    <span>{activeLocale.nativeLabel}</span>
+                  </span>
                   <ChevronDown aria-hidden="true" size={16} />
                 </Button>
               </Dropdown.Trigger>
@@ -97,11 +112,16 @@ export function Header({ onThemeModeChange, themeMode }: HeaderProps) {
               <Dropdown.Trigger>
                 <Button
                   aria-label={t("header.language")}
-                  className="min-w-14 gap-1 px-2"
-                  variant="secondary"
+                  className="h-10 rounded-full border-default-200 bg-default-100/80 px-3 text-foreground"
+                  variant="outline"
                 >
-                  <Languages aria-hidden="true" size={16} />
-                  <ChevronDown aria-hidden="true" size={14} />
+                  <CircleFlag
+                    className="size-5.5 shrink-0"
+                    countryCode={activeLocale.flagCountryCode}
+                    height="20"
+                  />
+                  <span>{activeLocale.nativeLabel}</span>
+                  <ChevronDown aria-hidden="true" size={16} />
                 </Button>
               </Dropdown.Trigger>
               <LanguageMenu
