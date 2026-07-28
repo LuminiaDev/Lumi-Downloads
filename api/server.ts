@@ -9,7 +9,11 @@ const app = createServerApp(process.env, {
   downloadDeliveryMode: "redirect",
 });
 
-export default function server(request: IncomingMessage, response: ServerResponse) {
+type VercelRequest = IncomingMessage & {
+  query?: unknown;
+};
+
+export default function server(request: VercelRequest, response: ServerResponse) {
   const url = new URL(request.url ?? "/", "https://downloads.invalid");
   const path = url.searchParams.get("path");
 
@@ -19,5 +23,6 @@ export default function server(request: IncomingMessage, response: ServerRespons
     request.url = `${path}${query ? `?${query}` : ""}`;
   }
 
+  Reflect.deleteProperty(request, "query");
   app(request, response);
 }
